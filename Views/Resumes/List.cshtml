@@ -1,0 +1,62 @@
+@model List<ResumeItem>
+@{
+    ViewData["Title"] = "Отримані резюме";
+}
+
+<h2>Отримані резюме</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+@if (Model.Count == 0)
+{
+    <p>Резюме ще не надходили.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Кандидат</th>
+                    <th>Контакти</th>
+                    <th>Файл</th>
+                    <th>Дата завантаження</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.CandidateName</td>
+                        <td>@r.Contact</td>
+                        <td>@r.FileName</td>
+                        <td>@r.UploadedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Open" asp-route-id="@r.Id" target="_blank" rel="noopener">Відкрити</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Download" asp-route-id="@r.Id">Завантажити</a>
+                            <form asp-action="Delete" asp-route-id="@r.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Видалити це резюме?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Видалити</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<hr />
+<a asp-controller="Home" asp-action="Menu">← Назад до головного меню</a>

@@ -1,0 +1,22 @@
+## Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+launchSettings.json
+
+## Секрети — НІКОЛИ не комітити
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+.env
+*.pem
+*.key
+.aws/
+aws-credentials*
+
+## Ресурси публікації
+publish/
+*.zip

@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Список завдань";
+}
+
+<h2>Оберіть завдання, за яке берете ся</h2>
+
+@{
+    var tasks = ViewBag.Tasks as List<(string Key, DateTime Date)>;
+}
+
+@if (tasks == null || tasks.Count == 0)
+{
+    <p>На даний момент завдань ще немає.</p>
+}
+else
+{
+    <table style="border-collapse: collapse; width: 100%;">
+        <tr>
+            <th style="text-align:left; border-bottom: 1px solid #ccc; padding: 8px;">Завдання</th>
+            <th style="text-align:left; border-bottom: 1px solid #ccc; padding: 8px;">Дата</th>
+            <th style="border-bottom: 1px solid #ccc; padding: 8px;"></th>
+        </tr>
+        @foreach (var task in tasks)
+        {
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">@task.Key</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">@task.Date.ToString("dd.MM.yyyy HH:mm")</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                    <a asp-action="TaskDetail" asp-route-key="@task.Key">
+                        <button type="button">Взятися за завдання</button>
+                    </a>
+                </td>
+            </tr>
+        }
+    </table>
+}
+
+<hr />
+<a asp-action="Menu">← Назад до головного меню</a>

@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Головне меню";
+}
+
+<h2>Хто ви?</h2>
+
+<div style="display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+    <a asp-controller="Home" asp-action="Index" style="padding: 20px 40px; background: #2d6cdf; color: white; text-decoration: none; border-radius: 6px; font-size: 18px;">
+        Я HR
+    </a>
+
+    <a asp-controller="Home" asp-action="Candidates" style="padding: 20px 40px; background: #2d9c4f; color: white; text-decoration: none; border-radius: 6px; font-size: 18px;">
+        Я користувач (кандидат)
+    </a>
+
+    <a asp-controller="Home" asp-action="Results" style="padding: 20px 40px; background: #7a3fc2; color: white; text-decoration: none; border-radius: 6px; font-size: 18px;">
+        Результати аналізу
+    </a>
+
+    <a asp-controller="Resumes" asp-action="Upload" style="padding: 20px 40px; background: #17a2b8; color: white; text-decoration: none; border-radius: 6px; font-size: 18px;">
+        Надіслати резюме (PDF)
+    </a>
+
+    <a asp-controller="Resumes" asp-action="List" style="padding: 20px 40px; background: #fd7e14; color: white; text-decoration: none; border-radius: 6px; font-size: 18px;">
+        HR: отримані резюме
+    </a>
+</div>

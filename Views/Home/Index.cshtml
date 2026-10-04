@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Технічне завдання";
+}
+
+<h2>Введення технічного завдання (ТЗ)</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div style="color: green; font-weight: bold; margin-bottom: 15px;">@ViewBag.Message</div>
+}
+
+<h4>Ввести текст ТЗ вручну:</h4>
+<form asp-action="SaveText" method="post">
+    <textarea name="tzText" rows="10" cols="80" placeholder="Введіть текст технічного завдання..."></textarea>
+    <br />
+    <button type="submit">Зберегти ТЗ</button>
+</form>
+
+<hr />
+
+<h4>Або завантажити готовий txt файл замість вводу тексту:</h4>
+<form asp-action="SaveFile" method="post" enctype="multipart/form-data">
+    <input type="file" name="tzFile" accept=".txt" />
+    <br />
+    <button type="submit">Завантажити файл</button>
+</form>
+
+<hr />
+<a asp-action="Menu">← Назад до головного меню</a>

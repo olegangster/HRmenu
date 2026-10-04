@@ -1,0 +1,50 @@
+@model ResumeUploadViewModel
+@{
+    ViewData["Title"] = "Надіслати резюме";
+}
+
+<h2>Надіслати резюме</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data" style="max-width: 520px;"
+      onsubmit="var b=document.getElementById('sendBtn'); if (this.checkValidity()) { b.disabled=true; b.innerText='Надсилаємо...'; }">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="CandidateName" class="form-label"></label>
+        <input asp-for="CandidateName" class="form-control" placeholder="Ім'я Прізвище" />
+        <span asp-validation-for="CandidateName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" placeholder="+380..." />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ResumeFile" class="form-label"></label>
+        <input asp-for="ResumeFile" type="file" class="form-control" accept=".pdf,application/pdf" />
+        <span asp-validation-for="ResumeFile" class="text-danger"></span>
+        <div class="form-text">Лише PDF, до 10 МБ.</div>
+    </div>
+
+    <button type="submit" id="sendBtn" class="btn btn-primary">Надіслати резюме</button>
+</form>
+
+<hr />
+<a asp-controller="Home" asp-action="Menu">← Назад до головного меню</a>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

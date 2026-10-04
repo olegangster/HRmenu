@@ -1,0 +1,33 @@
+using Amazon;
+using Amazon.S3;
+using TZApp.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllersWithViews();
+
+// Один S3-клієнт на весь застосунок. Ключі беруться з User Secrets / змінних середовища,
+// а якщо їх немає — з IAM-ролі (так працює в Elastic Beanstalk / EC2).
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var region = RegionEndpoint.GetBySystemName(cfg["Aws:Region"] ?? "eu-central-1");
+    var accessKey = cfg["Aws:AccessKey"];
+    var secretKey = cfg["Aws:SecretKey"];
+
+    return string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey)
+        ? new AmazonS3Client(region)
+        : new AmazonS3Client(accessKey, secretKey, region);
+});
+builder.Services.AddScoped<IResumeStorageService, ResumeStorageService>();
+
+var app = builder.Build();
+
+app.UseStaticFiles();
+app.UseRouting();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Menu}/{id?}");
+
+app.Run();

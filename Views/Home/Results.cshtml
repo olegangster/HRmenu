@@ -1,0 +1,117 @@
+﻿@using TZApp.Models
+@model List<AnalysisRecord>
+
+@{
+    ViewData["Title"] = "Результати аналізу";
+}
+
+<h2>📊 Результати AI-аналізу резюме</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div style="color: #b00020; font-weight: bold; margin: 10px 0;">@ViewBag.Error</div>
+}
+
+@if (Model.Count == 0)
+{
+    <p>Поки що немає жодного аналізу. Вони з'являться після того, як кандидати надішлють резюме.</p>
+}
+
+@foreach (var r in Model)
+{
+    string fullName = $"{r.FirstName} {r.LastName}".Trim();
+    if (string.IsNullOrEmpty(fullName)) fullName = r.CandidateName ?? "Невідомий кандидат";
+
+    double pct = Math.Clamp(r.MatchPercent ?? 0, 0, 100);
+    string color = pct >= 75 ? "#2d9c4f" : pct >= 50 ? "#e0a800" : "#d9534f";
+
+    <div style="border: 1px solid #ccc; border-radius: 8px; padding: 18px; margin-bottom: 20px; background: #fff;">
+
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <h4 style="margin: 0;">@fullName</h4>
+            <span style="color: #777;">@r.CreatedAt.ToString("dd.MM.yyyy HH:mm")</span>
+        </div>
+
+        <div style="color: #555; margin-top: 4px;">
+            Завдання: <b>@(r.TaskKey ?? "—")</b><br />
+            Файл резюме: @(r.ResumeFile ?? "—")
+        </div>
+
+        @if (!string.IsNullOrEmpty(r.Error))
+        {
+            <div style="color: #b00020; margin-top: 12px;">⚠ @r.Error</div>
+        }
+        else
+        {
+            <div style="margin-top: 14px;">
+                <b>Відповідність: @(r.MatchPercent?.ToString("0") ?? "—")%</b>
+                @if (!string.IsNullOrEmpty(r.Verdict))
+                {
+                    <span style="background: @color; color: #fff; padding: 2px 10px; border-radius: 12px; margin-left: 8px;">@r.Verdict</span>
+                }
+                <div style="background: #e9ecef; border-radius: 6px; height: 14px; margin-top: 6px; overflow: hidden;">
+                    <div style="width: @(pct.ToString("0", System.Globalization.CultureInfo.InvariantCulture))%; background: @color; height: 100%;"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 14px;">
+                <b>Досвід:</b>
+                @(r.ExperienceYears.HasValue? r.ExperienceYears.Value.ToString("0.#") + " р." : "—")
+                @if (!string.IsNullOrEmpty(r.ExperienceSummary))
+                {
+                    <div style="color: #444;">@r.ExperienceSummary</div>
+                }
+            </div>
+
+            @if (r.Skills.Any())
+            {
+                <div style="margin-top: 14px;">
+                    <b>Навички:</b><br />
+                    @foreach (var s in r.Skills)
+                    {
+                        <span style="display: inline-block; background: #e8f0fe; color: #1a4fa0; padding: 3px 10px; border-radius: 12px; margin: 3px 4px 0 0;">@s</span>
+                    }
+                </div>
+            }
+
+            <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-top: 14px;">
+                @if (r.Strengths.Any())
+                {
+                    <div style="flex: 1; min-width: 220px;">
+                        <b style="color: #2d9c4f;">✔ Сильні сторони</b>
+                        <ul style="margin-top: 4px;">
+                            @foreach (var s in r.Strengths)
+                            {
+                                <li>@s</li>
+                            }
+                        </ul>
+                    </div>
+                }
+                @if (r.Gaps.Any())
+                {
+                    <div style="flex: 1; min-width: 220px;">
+                        <b style="color: #d9534f;">✖ Чого не вистачає</b>
+                        <ul style="margin-top: 4px;">
+                            @foreach (var g in r.Gaps)
+                            {
+                                <li>@g</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        }
+
+        <details style="margin-top: 12px;">
+            <summary style="cursor: pointer;">Показати JSON</summary>
+            <pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; white-space: pre-wrap; margin-top: 8px;">@r.RawJson</pre>
+        </details>
+
+        <div style="margin-top: 8px;">
+            <a asp-action="DownloadAnalysis" asp-route-key="@r.Key">⬇ Завантажити JSON</a>
+        </div>
+    </div>
+}
+
+<hr />
+<a asp-action="Menu">← До головного меню</a>
