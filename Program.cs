@@ -6,8 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-// Один S3-клієнт на весь застосунок. Ключі беруться з User Secrets / змінних середовища,
-// а якщо їх немає — з IAM-ролі (так працює в Elastic Beanstalk / EC2).
 builder.Services.AddSingleton<IAmazonS3>(sp =>
 {
     var cfg = sp.GetRequiredService<IConfiguration>();

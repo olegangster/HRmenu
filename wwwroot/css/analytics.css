@@ -1,0 +1,41 @@
+.dash .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.dash .stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+
+.charts { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 16px; }
+.charts .chart { grid-column: span 4; margin-bottom: 0; }
+.charts .chart.wide { grid-column: span 8; }
+
+.donut-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.donut { width: 150px; height: 150px; border-radius: 50%; position: relative; flex-shrink: 0; }
+.donut-hole { position: absolute; inset: 24px; background: #fff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.donut-hole b { font-size: 1.6rem; line-height: 1; }
+.donut-hole span { font-size: .75rem; color: var(--muted); }
+.legend { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: .88rem; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend b { margin-left: auto; padding-left: 12px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+.hbars { display: flex; flex-direction: column; gap: 10px; }
+.hbar-row { display: grid; grid-template-columns: 150px 1fr 44px; align-items: center; gap: 10px; font-size: .88rem; }
+.hbar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-decoration: none; }
+a.hbar-label:hover { color: var(--primary); }
+.hbar-value { text-align: right; }
+.bar-fill.skill { background: var(--primary); }
+.hbar-row.stack { grid-template-columns: 1fr; gap: 4px; }
+.hbar-label.full { white-space: normal; line-height: 1.3; }
+.row-inline { display: grid; grid-template-columns: 1fr 30px; align-items: center; gap: 10px; }
+
+.table-wrap { overflow-x: auto; }
+.atable { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.atable th { text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.atable td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.atable tbody tr:hover { background: #fafbfe; }
+.match-cell { min-width: 140px; }
+.mini { display: flex; align-items: center; gap: 8px; }
+.mini .bar { flex: 1; }
+.btn-ghost.sm { padding: 6px 12px; font-size: .8rem; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .charts .chart, .charts .chart.wide { grid-column: span 12; }
+  .hbar-row { grid-template-columns: 110px 1fr 40px; }
+}

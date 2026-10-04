@@ -7,13 +7,12 @@ namespace TZApp.Models
         public const string Failed = "Помилка аналізу";
     }
 
-    /// <summary>Один кандидат на HR Dashboard (результат аналізу або резюме, яке ще чекає).</summary>
     public class CandidateAnalysis
     {
-        public string Id { get; set; } = "";            // ключ Analysis_*.json або ключ резюме (для "Очікує")
+        public string Id { get; set; } = "";           
         public string? AnalysisKey { get; set; }
-        public string? ResumeKey { get; set; }          // ключ PDF у S3
-        public string? ResumeId { get; set; }           // GUID для Resumes/Open (Presigned URL)
+        public string? ResumeKey { get; set; } 
+        public string? ResumeId { get; set; }
 
         public string Name { get; set; } = "Невідомий кандидат";
         public string Status { get; set; } = AnalysisStatus.Pending;
@@ -24,8 +23,8 @@ namespace TZApp.Models
         public DateTime Date { get; set; }
 
         public List<string> Skills { get; set; } = new();
-        public List<string> Confirmed { get; set; } = new();   // підтверджені вимоги
-        public List<string> Missing { get; set; } = new();     // інформації не знайдено
+        public List<string> Confirmed { get; set; } = new();
+        public List<string> Missing { get; set; } = new();
         public List<string> Strengths { get; set; } = new();
         public List<string> Gaps { get; set; } = new();
 

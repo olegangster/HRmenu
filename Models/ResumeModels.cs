@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TZApp.Models
 {
-    /// <summary>Модель форми кандидата.</summary>
     public class ResumeUploadViewModel
     {
         [Required(ErrorMessage = "Вкажіть ім'я")]
@@ -25,7 +24,6 @@ namespace TZApp.Models
         public IFormFile? ResumeFile { get; set; }
     }
 
-    /// <summary>Рядок у списку резюме для HR.</summary>
     public class ResumeItem
     {
         public string Id { get; set; } = "";
