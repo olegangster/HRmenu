@@ -1,0 +1,166 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "HR Dashboard";
+    const int maxSkills = 6;
+}
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<div class="dash">
+    <div class="dash-head">
+        <div>
+            <h1>HR Dashboard</h1>
+            <p class="muted">Результати AI-аналізу резюме (Google Gemini)</p>
+        </div>
+        <a class="btn-ghost" asp-controller="Home" asp-action="Menu">← Головне меню</a>
+    </div>
+
+    @if (Model.Error != null)
+    {
+        <div class="alert-box">@Model.Error</div>
+    }
+
+    <div class="stats">
+        <div class="stat"><span class="stat-num">@Model.Total</span><span class="stat-label">Усього кандидатів</span></div>
+        <div class="stat"><span class="stat-num ok">@Model.Done</span><span class="stat-label">Проаналізовано</span></div>
+        <div class="stat"><span class="stat-num wait">@Model.Pending</span><span class="stat-label">Очікує аналізу</span></div>
+        <div class="stat"><span class="stat-num">@(Model.AvgMatch.HasValue ? Model.AvgMatch.Value.ToString("0") + "%" : "—")</span><span class="stat-label">Середня відповідність</span></div>
+    </div>
+
+    <div class="toolbar">
+        <input id="search" type="search" placeholder="Пошук за іменем або навичкою…" />
+        <div class="chips" id="filters">
+            <button type="button" class="chip active" data-status="all">Усі</button>
+            <button type="button" class="chip" data-status="done">Проаналізовано</button>
+            <button type="button" class="chip" data-status="pending">Очікує аналізу</button>
+            <button type="button" class="chip" data-status="failed">Помилка</button>
+        </div>
+    </div>
+
+    @if (Model.Candidates.Count == 0 && Model.Error == null)
+    {
+        <div class="empty">Поки що немає жодного кандидата. Вони з'являться після надсилання резюме.</div>
+    }
+
+    <div class="grid" id="grid">
+        @foreach (var c in Model.Candidates)
+        {
+            string statusKey = c.Status == AnalysisStatus.Done ? "done" : c.Status == AnalysisStatus.Failed ? "failed" : "pending";
+            double pct = Math.Clamp(c.MatchPercent ?? 0, 0, 100);
+            string level = pct >= 75 ? "high" : pct >= 50 ? "mid" : "low";
+            string initial = string.IsNullOrWhiteSpace(c.Name) ? "?" : c.Name.Trim()[0].ToString().ToUpper();
+            string searchText = (c.Name + " " + string.Join(" ", c.Skills)).ToLowerInvariant();
+
+            <article class="card" data-status="@statusKey" data-search="@searchText">
+                <div class="card-top">
+                    <div class="avatar">@initial</div>
+                    <div class="who">
+                        <h3>@c.Name</h3>
+                        <span class="muted small">@c.Date.ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                    <span class="badge @statusKey">@c.Status</span>
+                </div>
+
+                @if (c.Status == AnalysisStatus.Pending)
+                {
+                    <p class="placeholder">⏳ Резюме отримано. Результат аналізу ще не готовий.</p>
+                }
+                else if (c.Status == AnalysisStatus.Failed)
+                {
+                    <p class="error-text">⚠ @(c.Error ?? "Не вдалося проаналізувати резюме.")</p>
+                }
+                else
+                {
+                    @if (c.MatchPercent.HasValue)
+                    {
+                        <div class="match">
+                            <div class="match-row"><span>Відповідність вакансії</span><b>@pct.ToString("0")%</b></div>
+                            <div class="bar"><div class="bar-fill @level" style="width:@(pct.ToString("0", System.Globalization.CultureInfo.InvariantCulture))%"></div></div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(c.Summary))
+                    {
+                        <p class="summary">@c.Summary</p>
+                    }
+
+                    <div class="block">
+                        <div class="block-title">Знайдені навички</div>
+                        @if (c.Skills.Count == 0)
+                        {
+                            <span class="muted small">—</span>
+                        }
+                        else
+                        {
+                            <div class="tags">
+                                @foreach (var s in c.Skills.Take(maxSkills)) { <span class="tag">@s</span> }
+                                @if (c.Skills.Count > maxSkills) { <span class="tag more">+@(c.Skills.Count - maxSkills)</span> }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="two-col">
+                        <div class="block">
+                            <div class="block-title ok">✔ Підтверджено (@c.Confirmed.Count)</div>
+                            @if (c.Confirmed.Count == 0) { <span class="muted small">—</span> }
+                            else
+                            {
+                                <ul class="list ok">
+                                    @foreach (var r in c.Confirmed.Take(3)) { <li>@r</li> }
+                                </ul>
+                                @if (c.Confirmed.Count > 3) { <span class="muted small">і ще @(c.Confirmed.Count - 3)…</span> }
+                            }
+                        </div>
+                        <div class="block">
+                            <div class="block-title bad">✖ Інформації не знайдено (@c.Missing.Count)</div>
+                            @if (c.Missing.Count == 0) { <span class="muted small">—</span> }
+                            else
+                            {
+                                <ul class="list bad">
+                                    @foreach (var r in c.Missing.Take(3)) { <li>@r</li> }
+                                </ul>
+                                @if (c.Missing.Count > 3) { <span class="muted small">і ще @(c.Missing.Count - 3)…</span> }
+                            }
+                        </div>
+                    </div>
+                }
+
+                <a class="btn-primary" asp-action="Details" asp-route-key="@c.Id">Переглянути детальніше</a>
+            </article>
+        }
+    </div>
+
+    <div class="empty" id="noResults" hidden>Нічого не знайдено за цим запитом.</div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var cards = document.querySelectorAll('#grid .card');
+            var search = document.getElementById('search');
+            var chips = document.querySelectorAll('#filters .chip');
+            var none = document.getElementById('noResults');
+            var status = 'all';
+
+            function apply() {
+                var q = search.value.trim().toLowerCase(), shown = 0;
+                cards.forEach(function (c) {
+                    var ok = (status === 'all' || c.dataset.status === status) &&
+                             (!q || c.dataset.search.indexOf(q) !== -1);
+                    c.hidden = !ok;
+                    if (ok) shown++;
+                });
+                none.hidden = shown !== 0 || cards.length === 0;
+            }
+
+            search.addEventListener('input', apply);
+            chips.forEach(function (ch) {
+                ch.addEventListener('click', function () {
+                    chips.forEach(function (x) { x.classList.remove('active'); });
+                    ch.classList.add('active');
+                    status = ch.dataset.status;
+                    apply();
+                });
+            });
+        })();
+    </script>
+}

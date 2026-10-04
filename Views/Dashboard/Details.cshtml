@@ -1,0 +1,128 @@
+@model CandidateAnalysis
+@{
+    ViewData["Title"] = "Деталі кандидата";
+    string statusKey = Model.Status == AnalysisStatus.Done ? "done" : Model.Status == AnalysisStatus.Failed ? "failed" : "pending";
+    double pct = Math.Clamp(Model.MatchPercent ?? 0, 0, 100);
+    string level = pct >= 75 ? "high" : pct >= 50 ? "mid" : "low";
+    string initial = string.IsNullOrWhiteSpace(Model.Name) ? "?" : Model.Name.Trim()[0].ToString().ToUpper();
+}
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<div class="dash detail">
+    <a class="btn-ghost" asp-action="Index">← До Dashboard</a>
+
+    <div class="hero">
+        <div class="avatar big">@initial</div>
+        <div class="who">
+            <h1>@Model.Name</h1>
+            <div class="muted">
+                @Model.Date.ToString("dd.MM.yyyy HH:mm")
+                @if (!string.IsNullOrEmpty(Model.TaskKey)) { <text> · Вакансія: <b>@Model.TaskKey</b></text> }
+            </div>
+            <div class="muted small">Файл резюме: @(Model.ResumeFile ?? "—")</div>
+        </div>
+        <span class="badge @statusKey big">@Model.Status</span>
+    </div>
+
+    @if (Model.Status == AnalysisStatus.Pending)
+    {
+        <div class="panel">
+            <p class="placeholder">⏳ Резюме отримано, результат аналізу ще не готовий. Оновіть сторінку через хвилину.</p>
+        </div>
+    }
+    else if (Model.Status == AnalysisStatus.Failed)
+    {
+        <div class="panel">
+            <p class="error-text">⚠ @(Model.Error ?? "Не вдалося проаналізувати резюме.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="panel">
+            @if (Model.MatchPercent.HasValue)
+            {
+                <div class="match">
+                    <div class="match-row">
+                        <span>Відповідність вакансії</span>
+                        <b>@pct.ToString("0")%
+                            @if (!string.IsNullOrEmpty(Model.Verdict)) { <span class="verdict @level">@Model.Verdict</span> }
+                        </b>
+                    </div>
+                    <div class="bar big"><div class="bar-fill @level" style="width:@(pct.ToString("0", System.Globalization.CultureInfo.InvariantCulture))%"></div></div>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.Summary))
+            {
+                <h4>AI summary</h4>
+                <p class="summary full">@Model.Summary</p>
+            }
+
+            @if (Model.ExperienceYears.HasValue || !string.IsNullOrWhiteSpace(Model.ExperienceSummary))
+            {
+                <h4>Досвід</h4>
+                <p>
+                    @if (Model.ExperienceYears.HasValue) { <b>@Model.ExperienceYears.Value.ToString("0.#") р.</b> }
+                    @Model.ExperienceSummary
+                </p>
+            }
+        </div>
+
+        <div class="panel">
+            <h4>Знайдені навички</h4>
+            @if (Model.Skills.Count == 0) { <span class="muted">—</span> }
+            else
+            {
+                <div class="tags">@foreach (var s in Model.Skills) { <span class="tag">@s</span> }</div>
+            }
+        </div>
+
+        <div class="two-col panels">
+            <div class="panel">
+                <h4 class="ok">✔ Підтверджені вимоги (@Model.Confirmed.Count)</h4>
+                @if (Model.Confirmed.Count == 0) { <span class="muted">—</span> }
+                else { <ul class="list ok">@foreach (var r in Model.Confirmed) { <li>@r</li> }</ul> }
+            </div>
+            <div class="panel">
+                <h4 class="bad">✖ Інформації не знайдено (@Model.Missing.Count)</h4>
+                @if (Model.Missing.Count == 0) { <span class="muted">—</span> }
+                else { <ul class="list bad">@foreach (var r in Model.Missing) { <li>@r</li> }</ul> }
+            </div>
+        </div>
+
+        @if (Model.Strengths.Count > 0 || Model.Gaps.Count > 0)
+        {
+            <div class="two-col panels">
+                <div class="panel">
+                    <h4 class="ok">Сильні сторони</h4>
+                    @if (Model.Strengths.Count == 0) { <span class="muted">—</span> }
+                    else { <ul class="list">@foreach (var r in Model.Strengths) { <li>@r</li> }</ul> }
+                </div>
+                <div class="panel">
+                    <h4 class="bad">Чого не вистачає</h4>
+                    @if (Model.Gaps.Count == 0) { <span class="muted">—</span> }
+                    else { <ul class="list">@foreach (var r in Model.Gaps) { <li>@r</li> }</ul> }
+                </div>
+            </div>
+        }
+    }
+
+    <div class="actions">
+        @if (!string.IsNullOrEmpty(Model.ResumeId))
+        {
+            <a class="btn-primary inline" asp-controller="Resumes" asp-action="Open" asp-route-id="@Model.ResumeId" target="_blank" rel="noopener">Відкрити резюме (PDF)</a>
+        }
+        @if (!string.IsNullOrEmpty(Model.AnalysisKey))
+        {
+            <a class="btn-ghost" asp-controller="Home" asp-action="DownloadAnalysis" asp-route-key="@Model.AnalysisKey">⬇ Завантажити JSON</a>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.RawJson))
+    {
+        <details class="panel raw">
+            <summary>Показати повний JSON</summary>
+            <pre>@Model.RawJson</pre>
+        </details>
+    }
+</div>

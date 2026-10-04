@@ -20,6 +20,7 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
         : new AmazonS3Client(accessKey, secretKey, region);
 });
 builder.Services.AddScoped<IResumeStorageService, ResumeStorageService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 var app = builder.Build();
 
